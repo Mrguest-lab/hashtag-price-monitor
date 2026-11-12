@@ -2,94 +2,161 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hashtag Price Monitor</title>
-<meta name="description" content="Live selling prices of HASHTAG EYEWEAR on Ajio, Nykaa, Flipkart, Amazon, Myntra and the Shopify website.">
+<meta name="description" content="Live selling prices of HASHTAG EYEWEAR on Ajio, Nykaa, Flipkart, Amazon, Myntra and the Shopify website, refreshed daily.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-  /* Layout: one column of cards; summary first, then portals, cross-portal comparison, all listings, sync log */
+  /* Concept: a lens. Dark ink hero with a slow moving "glare", then light cards. Each portal keeps its own brand colour. */
   :root {
-    --bg: #f6f5f1; --panel: #ffffff; --fg: #1d1f24; --muted: #6a6e78; --line: #e3e1da;
-    --accent: #1f3864; --ok: #1e7a46; --warn: #a3620a; --bad: #b42318; --off: #b9bcc4;
+    --ink: #0d1220; --ink-2: #151c2e; --glare-a: #f2b134; --glare-b: #2bb3a3; --glare-c: #e0457b;
+    --bg: #f4f2ec; --panel: #ffffff; --fg: #191c23; --muted: #646a75; --line: #e4e1d8; --soft: #f0eee7;
+    --ok: #1d8a52; --warn: #b26b0b; --bad: #c0352a; --off: #c9ccd3;
     --display: "Fraunces", Georgia, serif; --body: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    --ease: cubic-bezier(.2,.8,.2,1);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --bg: #14161a; --panel: #1c1f25; --fg: #eceae4; --muted: #9a9ea8; --line: #2e323a; --accent: #9db7e8; --ok: #5cc48a; --warn: #e3a34a; --bad: #f07a6e; --off: #4b505a; color-scheme: dark; }
+    :root { --bg: #10131b; --panel: #171b25; --fg: #ecebe6; --muted: #9aa0ab; --line: #272c38; --soft: #1d222d; --ok: #4fc684; --warn: #e7a648; --bad: #f2786c; --off: #3b4150; color-scheme: dark; }
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body); }
-  .wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; }
-  header h1 { font: 500 clamp(28px, 4vw, 40px)/1.1 var(--display); margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
-  .take { margin: 0; max-width: 72ch; color: var(--fg); }
-  .take b { font-variant-numeric: tabular-nums; }
-  .meta { margin-top: 8px; font-size: 13px; color: var(--muted); }
-  .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 10px; min-width: 0; align-content: start; }
-  .card h2 { margin: 0; font: 600 17px/1.3 var(--body); }
-  .sub { margin: 0; font-size: 13px; color: var(--muted); }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; overflow: hidden; background: var(--ink); color: #f5f3ee; isolation: isolate; }
+  .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; z-index: -1; }
+  .hero::before { width: 60vmax; height: 60vmax; left: -15vmax; top: -30vmax; background: radial-gradient(circle, var(--glare-a), transparent 65%); animation: drift 18s var(--ease) infinite alternate; }
+  .hero::after { width: 55vmax; height: 55vmax; right: -20vmax; bottom: -35vmax; background: radial-gradient(circle, var(--glare-b), transparent 65%); animation: drift 22s var(--ease) infinite alternate-reverse; }
+  .lens { position: absolute; z-index: -1; right: 6vw; top: 50%; width: min(34vw, 380px); aspect-ratio: 1; translate: 0 -50%; border-radius: 50%;
+    background: conic-gradient(from 0deg, rgba(255,255,255,.0), rgba(255,255,255,.18), rgba(255,255,255,0) 30%, rgba(224,69,123,.25), rgba(255,255,255,0) 70%);
+    border: 1px solid rgba(255,255,255,.18); animation: spin 26s linear infinite; }
+  .lens::after { content: ""; position: absolute; inset: 14%; border-radius: 50%; border: 1px solid rgba(255,255,255,.12); }
+  @keyframes drift { to { transform: translate(8vmax, 6vmax) scale(1.15); } }
+  @keyframes spin { to { rotate: 360deg; } }
+  .hero-in { max-width: 1240px; margin: 0 auto; padding-block: 44px 40px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 600 12px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.72); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #4fe08f; box-shadow: 0 0 0 0 rgba(79,224,143,.7); animation: pulse 2s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(79,224,143,0); } 100% { box-shadow: 0 0 0 0 rgba(79,224,143,0); } }
+  h1 { margin: 0; font: 400 clamp(36px, 6vw, 68px)/1.02 var(--display); letter-spacing: -.02em; max-width: 14ch; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, var(--glare-a), var(--glare-c) 55%, var(--glare-b)); -webkit-background-clip: text; background-clip: text; color: transparent; background-size: 200% 100%; animation: sheen 6s ease-in-out infinite alternate; }
+  @keyframes sheen { to { background-position: 100% 0; } }
+  .lede { margin: 0; max-width: 62ch; color: rgba(255,255,255,.8); font-size: 16px; }
+  .lede b { color: #fff; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: 12px; }
+  .stat { padding: 16px 18px; border-radius: 14px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(6px); }
+  .stat .v { font: 600 clamp(26px, 3.4vw, 36px)/1.1 var(--body); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .stat .k { font-size: 12px; color: rgba(255,255,255,.65); text-transform: uppercase; letter-spacing: .08em; }
+  .synced { font-size: 13px; color: rgba(255,255,255,.6); }
+
+  /* ---------- body ---------- */
+  .wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr)); gap: 14px; }
+  .tile { --c: #888; position: relative; overflow: hidden; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 10px;
+    transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+  .tile::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--c); }
+  .tile:hover, .tile[aria-pressed="true"] { transform: translateY(-4px); box-shadow: 0 14px 30px -18px var(--c); border-color: var(--c); }
+  .tile-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .tile-name { font: 600 16px/1.2 var(--body); }
+  .ring { width: 58px; height: 58px; flex: none; }
+  .ring circle { fill: none; stroke-width: 7; }
+  .ring .trk { stroke: var(--soft); }
+  .ring .val { stroke: var(--c); stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 1.4s var(--ease); }
+  .ring text { font: 600 13px var(--body); fill: var(--fg); text-anchor: middle; dominant-baseline: central; }
+  .tile-big { font: 600 28px/1 var(--body); font-variant-numeric: tabular-nums; }
+  .tile-big small { font: 500 13px var(--body); color: var(--muted); }
+  .tile-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .tile-row b { color: var(--fg); font-variant-numeric: tabular-nums; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 12px; min-width: 0; align-content: start; }
+  .card h2 { margin: 0; font: 400 24px/1.2 var(--display); letter-spacing: -.01em; }
+  .sub { margin: 0; font-size: 13px; color: var(--muted); max-width: 80ch; }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  input, select, button { font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); min-width: 0; }
+  input, select { font: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); min-width: 0; transition: border-color .2s, box-shadow .2s; }
+  input:focus, select:focus { border-color: var(--glare-b); box-shadow: 0 0 0 3px color-mix(in srgb, var(--glare-b) 25%, transparent); outline: none; }
   input[type="search"] { flex: 1 1 14rem; }
-  label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .count { font-size: 13px; color: var(--muted); }
-  .scroll { overflow: auto; max-height: 34rem; border-top: 1px solid var(--line); }
-  .scroll.short { max-height: none; }
+  .chip { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); cursor: pointer; user-select: none; transition: background .2s, border-color .2s; }
+  .chip:has(input:checked) { background: color-mix(in srgb, var(--glare-c) 14%, transparent); border-color: var(--glare-c); }
+  .chip input { accent-color: var(--glare-c); margin: 0; }
+  .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bars { display: grid; gap: 12px; }
+  .bar { display: grid; grid-template-columns: 6.5rem 1fr 3.4rem; gap: 12px; align-items: center; font-size: 13px; }
+  .track { height: 26px; border-radius: 8px; background: var(--soft); overflow: hidden; position: relative; }
+  .fill { position: absolute; inset: 0 auto 0 0; border-radius: 8px; width: 0; transition: width 1.3s var(--ease); }
+  .fill.all { background: color-mix(in srgb, var(--c) 28%, transparent); }
+  .fill.live { background: var(--c); }
+  .scroll { overflow: auto; max-height: 36rem; border-top: 1px solid var(--line); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
-  th { position: sticky; top: 0; background: var(--panel); text-align: left; font-weight: 500; color: var(--muted); padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-  th[data-sort] { cursor: pointer; }
+  th { position: sticky; top: 0; z-index: 1; background: var(--panel); text-align: left; font-weight: 600; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th[data-sort] { cursor: pointer; } th[data-sort]:hover { color: var(--fg); }
   th[aria-sort="ascending"]::after { content: " ↑"; } th[aria-sort="descending"]::after { content: " ↓"; }
-  td { padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  tbody tr { transition: background .15s; } tbody tr:hover { background: var(--soft); }
   .num { text-align: right; }
   td.sku { font-weight: 600; }
   td.code { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-  td.low { color: var(--ok); font-weight: 600; } td.high { color: var(--bad); }
-  .pill { display: inline-block; padding: 0 8px; border-radius: 999px; font-size: 12px; border: 1px solid currentColor; }
-  .pill.live { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.off { color: var(--muted); }
-  a { color: var(--accent); }
-  .bar { display: grid; grid-template-columns: 6.5rem 1fr 3.5rem; gap: 10px; align-items: center; font-size: 13px; }
-  .track { height: 22px; border-radius: 4px; background: var(--off); overflow: hidden; display: flex; }
-  .fill { background: var(--ok); height: 100%; }
-  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
-  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
-  .loading { color: var(--muted); font-size: 13px; }
-  footer { font-size: 12px; color: var(--muted); }
+  td.low span { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+  td.high span { color: var(--bad); }
+  .gap { display: inline-block; min-width: 3.4rem; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+  .gap.big { background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 1px 9px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--soft); color: var(--muted); }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .pill.live { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+  .pill.warn { color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+  .ptag { display: inline-flex; align-items: center; gap: 6px; }
+  .ptag::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+  a.open { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); text-decoration: none; font-size: 12px; transition: background .2s, border-color .2s, transform .2s; }
+  a.open:hover { background: var(--fg); color: var(--bg); transform: translateX(2px); }
+  :focus-visible { outline: 2px solid var(--glare-b); outline-offset: 2px; }
+  .skel { height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--soft), var(--line), var(--soft)); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  footer { font-size: 12px; color: var(--muted); text-align: center; }
+
+  /* entrance: content is visible at rest; motion only adds the slide-in */
+  @media (prefers-reduced-motion: no-preference) {
+    .rise { animation: rise .8s var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms); }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  @media (max-width: 640px) { .lens { display: none; } .bar { grid-template-columns: 5rem 1fr 3rem; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Hashtag Price Monitor</h1>
-    <p class="take" id="take"><span class="loading">Loading live prices…</span></p>
-    <div class="meta" id="meta">Prices are read from each portal at sync time and refreshed daily.</div>
-  </header>
+<section class="hero">
+  <div class="lens" aria-hidden="true"></div>
+  <div class="hero-in">
+    <div class="brand rise"><span class="dot" aria-hidden="true"></span> HASHTAG EYEWEAR · live price monitor</div>
+    <h1 class="rise" style="--i:1">Every portal. <em>One price view.</em></h1>
+    <p class="lede rise" style="--i:2" id="take">Loading live prices from Ajio, Nykaa, Flipkart, Amazon, Myntra and the Shopify website…</p>
+    <div class="stats rise" style="--i:3">
+      <div class="stat"><div class="v" data-count="live">0</div><div class="k">Live listings</div></div>
+      <div class="stat"><div class="v" data-count="total">0</div><div class="k">Listings tracked</div></div>
+      <div class="stat"><div class="v" data-count="skus">0</div><div class="k">SKUs live on 2+ portals</div></div>
+      <div class="stat"><div class="v" data-count="gaps">0</div><div class="k">SKUs with 2x price gap</div></div>
+    </div>
+    <div class="synced rise" style="--i:4" id="synced">Refreshed daily.</div>
+  </div>
+</section>
 
-  <section class="grid">
-    <div class="card">
-      <h2>Portals at a glance</h2>
-      <p class="sub">Live means visible and buyable on the portal at sync time. Discount is average live price against MRP.</p>
-      <div class="scroll short">
-        <table><thead><tr><th>Portal</th><th class="num">Listings</th><th class="num">Live</th><th class="num">Live share</th><th class="num">Avg live price (Rs)</th><th class="num">Avg discount</th></tr></thead>
-        <tbody id="portal-rows"></tbody></table>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Live vs not live</h2>
-      <p class="sub">Not live covers out of stock, inactive and listings not found on the portal.</p>
-      <div class="legend"><span><i class="sw" style="background:var(--ok)"></i>Live</span><span><i class="sw" style="background:var(--off)"></i>Not live</span></div>
-      <div id="bars" style="display:grid;gap:10px"></div>
-    </div>
+<main class="wrap">
+  <section class="tiles" id="tiles" aria-label="Portals"></section>
+
+  <section class="card rise" style="--i:2">
+    <h2>Live vs not live</h2>
+    <p class="sub">Full bar is all listings on the portal; the solid part is live. Not live covers out of stock, inactive and listings not found on the portal. Click a portal tile to filter the tables below.</p>
+    <div class="bars" id="bars"></div>
   </section>
 
-  <section class="card">
+  <section class="card rise" style="--i:3" id="compare">
     <h2>Same SKU, different price</h2>
-    <p class="sub">Lowest live price of each main SKU on every portal where it is live. Green is the lowest, red the highest. Gap is highest price divided by lowest.</p>
+    <p class="sub">Lowest live price of each main SKU on every portal where it is live. Green is the cheapest portal, red the most expensive. Gap = highest ÷ lowest.</p>
     <div class="controls">
       <input id="cmp-q" type="search" placeholder="Search main SKU" aria-label="Search main SKU">
-      <label class="chk"><input id="cmp-gap" type="checkbox"> Only gaps of 2x or more</label>
+      <label class="chip"><input id="cmp-gap" type="checkbox"> Only 2x gaps</label>
       <span class="count" id="cmp-count"></span>
     </div>
     <div class="scroll">
@@ -99,13 +166,13 @@
         <th class="num" data-sort="Flipkart" aria-sort="none">Flipkart</th><th class="num" data-sort="Amazon" aria-sort="none">Amazon</th>
         <th class="num" data-sort="Myntra" aria-sort="none">Myntra</th><th class="num" data-sort="Shopify" aria-sort="none">Shopify</th>
         <th data-sort="cheapest" aria-sort="none">Cheapest on</th><th class="num" data-sort="gap" aria-sort="descending">Gap</th>
-      </tr></thead><tbody id="cmp-rows"></tbody></table>
+      </tr></thead><tbody id="cmp-rows"><tr><td colspan="9"><div class="skel"></div></td></tr></tbody></table>
     </div>
   </section>
 
-  <section class="card">
+  <section class="card rise" style="--i:4" id="listings">
     <h2>All listings</h2>
-    <p class="sub">Every listing with its live status and price. Open goes to the product page on the portal. Up to 500 rows are shown; search to narrow.</p>
+    <p class="sub">Every listing with its live status and price. "Open" goes to the product page on the portal. Up to 500 rows are shown; search to narrow.</p>
     <div class="controls">
       <input id="list-q" type="search" placeholder="Search main SKU, seller SKU or code" aria-label="Search listings">
       <select id="list-portal" aria-label="Portal"><option value="">All portals</option></select>
@@ -113,27 +180,29 @@
       <span class="count" id="list-count"></span>
     </div>
     <div class="scroll">
-      <table><thead><tr><th>Main SKU</th><th>Portal</th><th>Seller SKU</th><th>Portal code</th><th>Status</th><th class="num">MRP (Rs)</th><th class="num">Live price (Rs)</th><th>Link</th></tr></thead>
-      <tbody id="list-rows"></tbody></table>
+      <table><thead><tr><th>Main SKU</th><th>Portal</th><th>Seller SKU</th><th>Portal code</th><th>Status</th><th class="num">MRP (Rs)</th><th class="num">Live price (Rs)</th><th></th></tr></thead>
+      <tbody id="list-rows"><tr><td colspan="8"><div class="skel"></div></td></tr></tbody></table>
     </div>
   </section>
 
-  <section class="card">
+  <section class="card rise" style="--i:5">
     <h2>Sync log</h2>
     <p class="sub">When each source was last collected.</p>
-    <div class="scroll short"><table><thead><tr><th>Source</th><th>Synced at</th><th class="num">Rows</th><th>Read from</th></tr></thead><tbody id="sync-rows"></tbody></table></div>
+    <div class="scroll" style="max-height:none"><table><thead><tr><th>Source</th><th>Synced at</th><th class="num">Rows</th><th>Read from</th></tr></thead><tbody id="sync-rows"></tbody></table></div>
   </section>
 
-  <footer>HASHTAG EYEWEAR · prices update once a day · no cost or margin data is published here.</footer>
-</div>
+  <footer>HASHTAG EYEWEAR · prices refresh once a day · no cost or margin data is published here</footer>
+</main>
 
 <script>
 const PORTALS = ['Ajio', 'Nykaa', 'Flipkart', 'Amazon', 'Myntra', 'Shopify'];
+const COLORS = { Ajio: '#2c4152', Nykaa: '#e80071', Flipkart: '#2874f0', Amazon: '#ff9900', Myntra: '#ff3f6c', Shopify: '#5e8e3e' };
 const fmt = new Intl.NumberFormat('en-IN');
 const pct = (x) => Math.round(x * 100) + '%';
 const num = (v) => (v === '' || v == null || isNaN(Number(v)) ? null : Number(v));
 const $ = (id) => document.getElementById(id);
 const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function parseCSV(text) {
   const rows = []; let row = [], cell = '', q = false;
@@ -149,16 +218,21 @@ function parseCSV(text) {
   const head = rows.shift().map((h) => h.replace(/^﻿/, ''));
   return rows.filter((r) => r.length > 1).map((r) => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])));
 }
-
 async function load(name) {
   const r = await fetch('data/' + name + '?v=' + Date.now());
   if (!r.ok) throw new Error(name + ' ' + r.status);
   return parseCSV(await r.text());
 }
+function countUp(node, to, ms = 1400) {
+  if (reduce) { node.textContent = fmt.format(to); return; }
+  const t0 = performance.now();
+  const step = (t) => { const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 4); node.textContent = fmt.format(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 
-let L = [], CMP = [], sort = { key: 'gap', dir: -1 };
+let L = [], CMP = [], sort = { key: 'gap', dir: -1 }, pick = '';
 
-function portalStats() {
+function stats() {
   return PORTALS.map((portal) => {
     const all = L.filter((r) => r.portal === portal), live = all.filter((r) => r.status === 'Live');
     const priced = live.filter((r) => num(r.live_price) > 0), both = priced.filter((r) => num(r.live_mrp) > 0);
@@ -167,7 +241,6 @@ function portalStats() {
       avg: priced.length ? Math.round(priced.reduce((s, r) => s + num(r.live_price), 0) / priced.length) : null, disc: mrp ? 1 - sp / mrp : null };
   });
 }
-
 function buildCompare() {
   const m = new Map();
   for (const r of L) {
@@ -185,20 +258,37 @@ function buildCompare() {
   });
 }
 
-function drawPortals(stats) {
-  $('portal-rows').replaceChildren(...stats.map((s) => {
-    const tr = el('tr');
-    tr.append(el('td', s.portal, 'sku'), el('td', fmt.format(s.listings), 'num'), el('td', fmt.format(s.live), 'num'), el('td', pct(s.share), 'num'),
-      el('td', s.avg == null ? '' : fmt.format(s.avg), 'num'), el('td', s.disc == null ? '' : pct(s.disc), 'num'));
-    return tr;
+function drawTiles(st) {
+  const R = 24, C = 2 * Math.PI * R;
+  $('tiles').replaceChildren(...st.map((s, i) => {
+    const b = el('button', null, 'tile rise'); b.type = 'button'; b.style.setProperty('--c', COLORS[s.portal]); b.style.setProperty('--i', i);
+    b.setAttribute('aria-pressed', 'false'); b.dataset.portal = s.portal; b.title = 'Show only ' + s.portal + ' in the tables';
+    const top = el('div', null, 'tile-top'); top.append(el('span', s.portal, 'tile-name'));
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('viewBox', '0 0 58 58'); svg.setAttribute('class', 'ring');
+    svg.innerHTML = `<circle class="trk" cx="29" cy="29" r="${R}"/><circle class="val" cx="29" cy="29" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/><text x="29" y="29"></text>`;
+    svg.querySelector('text').textContent = pct(s.share);
+    top.append(svg);
+    const big = el('div', null, 'tile-big'); const n = el('span', '0'); big.append(n, el('small', ' live'));
+    const r1 = el('div', null, 'tile-row'); r1.append(el('span', 'Listings'), el('b', fmt.format(s.listings)));
+    const r2 = el('div', null, 'tile-row'); r2.append(el('span', 'Avg price'), el('b', s.avg == null ? '—' : 'Rs ' + fmt.format(s.avg)));
+    const r3 = el('div', null, 'tile-row'); r3.append(el('span', 'Avg discount'), el('b', s.disc == null ? '—' : pct(s.disc)));
+    b.append(top, big, r1, r2, r3);
+    b.addEventListener('click', () => { pick = pick === s.portal ? '' : s.portal; $('list-portal').value = pick; syncPick(); drawList(); document.getElementById('listings').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+    setTimeout(() => { svg.querySelector('.val').style.strokeDashoffset = C * (1 - s.share); countUp(n, s.live, 1200); }, 250 + i * 110);
+    return b;
   }));
-  const max = Math.max(...stats.map((s) => s.listings), 1);
-  $('bars').replaceChildren(...stats.map((s) => {
-    const row = el('div', null, 'bar'), track = el('div', null, 'track'), fill = el('div', null, 'fill');
-    track.style.width = (s.listings / max * 100) + '%'; fill.style.width = (s.share * 100) + '%';
+}
+function syncPick() { document.querySelectorAll('.tile').forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.portal === pick && pick !== ''))); }
+
+function drawBars(st) {
+  const max = Math.max(...st.map((s) => s.listings), 1);
+  $('bars').replaceChildren(...st.map((s, i) => {
+    const row = el('div', null, 'bar'); row.style.setProperty('--c', COLORS[s.portal]);
+    const tag = el('span', s.portal, 'ptag'); tag.style.setProperty('--c', COLORS[s.portal]);
+    const track = el('div', null, 'track'); const all = el('div', null, 'fill all'), live = el('div', null, 'fill live');
     track.title = s.portal + ': ' + fmt.format(s.live) + ' live, ' + fmt.format(s.listings - s.live) + ' not live';
-    track.append(fill); row.append(el('span', s.portal), el('div', null), el('span', pct(s.share), 'count'));
-    row.children[1].append(track);
+    track.append(all, live); row.append(tag, track, el('span', pct(s.share), 'count'));
+    setTimeout(() => { all.style.width = (s.listings / max * 100) + '%'; live.style.width = (s.live / max * 100) + '%'; }, 300 + i * 120);
     return row;
   }));
 }
@@ -208,29 +298,35 @@ function drawCompare() {
   const rows = CMP.filter((r) => (!q || r.main_sku.toLowerCase().includes(q)) && (!only2 || (r.gap != null && r.gap >= 2)))
     .sort((a, b) => { const va = a[sort.key], vb = b[sort.key]; if (va == null || va === '') return 1; if (vb == null || vb === '') return -1;
       return (typeof va === 'number' ? va - vb : String(va).localeCompare(String(vb))) * sort.dir; });
-  $('cmp-count').textContent = fmt.format(rows.length) + ' SKUs shown';
+  $('cmp-count').textContent = fmt.format(rows.length) + ' SKUs';
   $('cmp-rows').replaceChildren(...rows.slice(0, 1500).map((r) => {
     const tr = el('tr'); tr.append(el('td', r.main_sku, 'sku'));
     const vals = PORTALS.map((k) => r[k]).filter((v) => v != null);
     const lo = vals.length > 1 ? Math.min(...vals) : null, hi = vals.length > 1 ? Math.max(...vals) : null;
-    for (const k of PORTALS) { const v = r[k]; tr.append(el('td', v == null ? '' : fmt.format(v), 'num' + (v != null && v === lo ? ' low' : v != null && v === hi && hi !== lo ? ' high' : ''))); }
-    tr.append(el('td', r.cheapest), el('td', r.gap == null ? '' : r.gap.toFixed(2) + 'x', 'num'));
+    for (const k of PORTALS) {
+      const v = r[k], td = el('td', null, 'num' + (v != null && v === lo ? ' low' : v != null && v === hi && hi !== lo ? ' high' : ''));
+      td.append(el('span', v == null ? '' : fmt.format(v))); tr.append(td);
+    }
+    const ch = el('td'); if (r.cheapest) { const t = el('span', r.cheapest, 'ptag'); t.style.setProperty('--c', COLORS[r.cheapest]); ch.append(t); }
+    const g = el('td', null, 'num'); if (r.gap != null) g.append(el('span', r.gap.toFixed(2) + 'x', 'gap' + (r.gap >= 2 ? ' big' : '')));
+    tr.append(ch, g);
     return tr;
   }));
 }
 
 function drawList() {
   const q = $('list-q').value.trim().toLowerCase(), p = $('list-portal').value, s = $('list-status').value;
+  pick = p; syncPick();
   const rows = L.filter((r) => (!p || r.portal === p) && (!s || (s === 'live' ? r.status === 'Live' : r.status !== 'Live')) &&
     (!q || r.main_sku.toLowerCase().includes(q) || r.seller_sku.toLowerCase().includes(q) || r.code.toLowerCase().includes(q)));
-  $('list-count').textContent = fmt.format(rows.length) + ' listings match';
+  $('list-count').textContent = fmt.format(rows.length) + ' listings';
   $('list-rows').replaceChildren(...rows.slice(0, 500).map((r) => {
     const tr = el('tr');
-    const pill = el('span', r.status, 'pill ' + (r.status === 'Live' ? 'live' : /OOS|hidden/.test(r.status) ? 'warn' : 'off'));
-    const st = el('td'); st.append(pill);
+    const pt = el('td'); const tag = el('span', r.portal, 'ptag'); tag.style.setProperty('--c', COLORS[r.portal] || '#888'); pt.append(tag);
+    const st = el('td'); st.append(el('span', r.status, 'pill ' + (r.status === 'Live' ? 'live' : /OOS|hidden/.test(r.status) ? 'warn' : '')));
     const lk = el('td');
-    if (/^https:\/\//.test(r.url)) { const a = el('a', 'Open'); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; lk.append(a); }
-    tr.append(el('td', r.main_sku, 'sku'), el('td', r.portal), el('td', r.seller_sku), el('td', r.code, 'code'), st,
+    if (/^https:\/\//.test(r.url)) { const a = el('a', 'Open ↗', 'open'); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; lk.append(a); }
+    tr.append(el('td', r.main_sku, 'sku'), pt, el('td', r.seller_sku), el('td', r.code, 'code'), st,
       el('td', num(r.live_mrp) == null ? '' : fmt.format(num(r.live_mrp)), 'num'), el('td', num(r.live_price) == null ? '' : fmt.format(num(r.live_price)), 'num'), lk);
     return tr;
   }));
@@ -240,15 +336,17 @@ function drawList() {
   try {
     const [listings, sync] = await Promise.all([load('listings.csv'), load('sync_log.csv')]);
     L = listings; CMP = buildCompare();
-    const stats = portalStats(), live = L.filter((r) => r.status === 'Live').length;
-    const cheap = {}; for (const r of CMP) if (r.cheapest) cheap[r.cheapest] = (cheap[r.cheapest] || 0) + 1;
+    const st = stats(), live = L.filter((r) => r.status === 'Live').length, multi = CMP.filter((r) => r.gap != null);
+    const cheap = {}; for (const r of multi) cheap[r.cheapest] = (cheap[r.cheapest] || 0) + 1;
     const top = Object.entries(cheap).sort((a, b) => b[1] - a[1])[0];
     const take = $('take'); take.replaceChildren();
-    take.append(el('b', fmt.format(live)), ' of ', el('b', fmt.format(L.length)), ' listings are live on ' + PORTALS.join(', ').replace(', Shopify', ' and the Shopify website') + '.');
-    if (top) take.append(' Among SKUs live on two or more portals, the same SKU is cheapest on ', el('b', top[0]), ' most often (' + fmt.format(top[1]) + ' SKUs).');
-    const times = sync.map((r) => r.synced_at).filter(Boolean);
-    $('meta').textContent = 'Latest sync: ' + (times.sort((a, b) => new Date(b) - new Date(a))[0] || '—') + '. Prices are read from each portal and refreshed daily.';
-    drawPortals(stats);
+    take.append(el('b', fmt.format(live)), ' of ', el('b', fmt.format(L.length)), ' listings are live right now across Ajio, Nykaa, Flipkart, Amazon, Myntra and the Shopify website.');
+    if (top) take.append(' When the same SKU is live on several portals, it is cheapest on ', el('b', top[0]), ' most often.');
+    const vals = { live, total: L.length, skus: multi.length, gaps: multi.filter((r) => r.gap >= 2).length };
+    document.querySelectorAll('[data-count]').forEach((n) => countUp(n, vals[n.dataset.count]));
+    const times = sync.map((r) => r.synced_at).filter(Boolean).sort((a, b) => new Date(b) - new Date(a));
+    $('synced').textContent = 'Latest sync ' + (times[0] || '—') + ' · refreshed daily';
+    drawTiles(st); drawBars(st);
     for (const p of PORTALS) $('list-portal').append(new Option(p, p));
     drawCompare(); drawList();
     $('sync-rows').replaceChildren(...sync.map((r) => { const tr = el('tr'); tr.append(el('td', r.portal, 'sku'), el('td', r.synced_at), el('td', num(r.rows) == null ? '' : fmt.format(num(r.rows)), 'num'), el('td', r.source)); return tr; }));
