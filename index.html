@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hashtag Price Monitor</title>
+<meta name="description" content="Live selling prices of HASHTAG EYEWEAR on Ajio, Nykaa, Flipkart, Amazon, Myntra and the Shopify website.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+  /* Layout: one column of cards; summary first, then portals, cross-portal comparison, all listings, sync log */
+  :root {
+    --bg: #f6f5f1; --panel: #ffffff; --fg: #1d1f24; --muted: #6a6e78; --line: #e3e1da;
+    --accent: #1f3864; --ok: #1e7a46; --warn: #a3620a; --bad: #b42318; --off: #b9bcc4;
+    --display: "Fraunces", Georgia, serif; --body: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #14161a; --panel: #1c1f25; --fg: #eceae4; --muted: #9a9ea8; --line: #2e323a; --accent: #9db7e8; --ok: #5cc48a; --warn: #e3a34a; --bad: #f07a6e; --off: #4b505a; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; }
+  header h1 { font: 500 clamp(28px, 4vw, 40px)/1.1 var(--display); margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+  .take { margin: 0; max-width: 72ch; color: var(--fg); }
+  .take b { font-variant-numeric: tabular-nums; }
+  .meta { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 10px; min-width: 0; align-content: start; }
+  .card h2 { margin: 0; font: 600 17px/1.3 var(--body); }
+  .sub { margin: 0; font-size: 13px; color: var(--muted); }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  input, select, button { font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); min-width: 0; }
+  input[type="search"] { flex: 1 1 14rem; }
+  label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .count { font-size: 13px; color: var(--muted); }
+  .scroll { overflow: auto; max-height: 34rem; border-top: 1px solid var(--line); }
+  .scroll.short { max-height: none; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th { position: sticky; top: 0; background: var(--panel); text-align: left; font-weight: 500; color: var(--muted); padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th[data-sort] { cursor: pointer; }
+  th[aria-sort="ascending"]::after { content: " ↑"; } th[aria-sort="descending"]::after { content: " ↓"; }
+  td { padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .num { text-align: right; }
+  td.sku { font-weight: 600; }
+  td.code { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  td.low { color: var(--ok); font-weight: 600; } td.high { color: var(--bad); }
+  .pill { display: inline-block; padding: 0 8px; border-radius: 999px; font-size: 12px; border: 1px solid currentColor; }
+  .pill.live { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.off { color: var(--muted); }
+  a { color: var(--accent); }
+  .bar { display: grid; grid-template-columns: 6.5rem 1fr 3.5rem; gap: 10px; align-items: center; font-size: 13px; }
+  .track { height: 22px; border-radius: 4px; background: var(--off); overflow: hidden; display: flex; }
+  .fill { background: var(--ok); height: 100%; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .loading { color: var(--muted); font-size: 13px; }
+  footer { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Hashtag Price Monitor</h1>
+    <p class="take" id="take"><span class="loading">Loading live prices…</span></p>
+    <div class="meta" id="meta">Prices are read from each portal at sync time and refreshed daily.</div>
+  </header>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Portals at a glance</h2>
+      <p class="sub">Live means visible and buyable on the portal at sync time. Discount is average live price against MRP.</p>
+      <div class="scroll short">
+        <table><thead><tr><th>Portal</th><th class="num">Listings</th><th class="num">Live</th><th class="num">Live share</th><th class="num">Avg live price (Rs)</th><th class="num">Avg discount</th></tr></thead>
+        <tbody id="portal-rows"></tbody></table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Live vs not live</h2>
+      <p class="sub">Not live covers out of stock, inactive and listings not found on the portal.</p>
+      <div class="legend"><span><i class="sw" style="background:var(--ok)"></i>Live</span><span><i class="sw" style="background:var(--off)"></i>Not live</span></div>
+      <div id="bars" style="display:grid;gap:10px"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Same SKU, different price</h2>
+    <p class="sub">Lowest live price of each main SKU on every portal where it is live. Green is the lowest, red the highest. Gap is highest price divided by lowest.</p>
+    <div class="controls">
+      <input id="cmp-q" type="search" placeholder="Search main SKU" aria-label="Search main SKU">
+      <label class="chk"><input id="cmp-gap" type="checkbox"> Only gaps of 2x or more</label>
+      <span class="count" id="cmp-count"></span>
+    </div>
+    <div class="scroll">
+      <table id="cmp"><thead><tr>
+        <th data-sort="main_sku" aria-sort="none">Main SKU</th>
+        <th class="num" data-sort="Ajio" aria-sort="none">Ajio</th><th class="num" data-sort="Nykaa" aria-sort="none">Nykaa</th>
+        <th class="num" data-sort="Flipkart" aria-sort="none">Flipkart</th><th class="num" data-sort="Amazon" aria-sort="none">Amazon</th>
+        <th class="num" data-sort="Myntra" aria-sort="none">Myntra</th><th class="num" data-sort="Shopify" aria-sort="none">Shopify</th>
+        <th data-sort="cheapest" aria-sort="none">Cheapest on</th><th class="num" data-sort="gap" aria-sort="descending">Gap</th>
+      </tr></thead><tbody id="cmp-rows"></tbody></table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>All listings</h2>
+    <p class="sub">Every listing with its live status and price. Open goes to the product page on the portal. Up to 500 rows are shown; search to narrow.</p>
+    <div class="controls">
+      <input id="list-q" type="search" placeholder="Search main SKU, seller SKU or code" aria-label="Search listings">
+      <select id="list-portal" aria-label="Portal"><option value="">All portals</option></select>
+      <select id="list-status" aria-label="Status"><option value="">Any status</option><option value="live">Live</option><option value="notlive">Not live</option></select>
+      <span class="count" id="list-count"></span>
+    </div>
+    <div class="scroll">
+      <table><thead><tr><th>Main SKU</th><th>Portal</th><th>Seller SKU</th><th>Portal code</th><th>Status</th><th class="num">MRP (Rs)</th><th class="num">Live price (Rs)</th><th>Link</th></tr></thead>
+      <tbody id="list-rows"></tbody></table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Sync log</h2>
+    <p class="sub">When each source was last collected.</p>
+    <div class="scroll short"><table><thead><tr><th>Source</th><th>Synced at</th><th class="num">Rows</th><th>Read from</th></tr></thead><tbody id="sync-rows"></tbody></table></div>
+  </section>
+
+  <footer>HASHTAG EYEWEAR · prices update once a day · no cost or margin data is published here.</footer>
+</div>
+
+<script>
+const PORTALS = ['Ajio', 'Nykaa', 'Flipkart', 'Amazon', 'Myntra', 'Shopify'];
+const fmt = new Intl.NumberFormat('en-IN');
+const pct = (x) => Math.round(x * 100) + '%';
+const num = (v) => (v === '' || v == null || isNaN(Number(v)) ? null : Number(v));
+const $ = (id) => document.getElementById(id);
+const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+
+function parseCSV(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n') { row.push(cell.replace(/\r$/, '')); rows.push(row); row = []; cell = ''; }
+    else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  const head = rows.shift().map((h) => h.replace(/^﻿/, ''));
+  return rows.filter((r) => r.length > 1).map((r) => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])));
+}
+
+async function load(name) {
+  const r = await fetch('data/' + name + '?v=' + Date.now());
+  if (!r.ok) throw new Error(name + ' ' + r.status);
+  return parseCSV(await r.text());
+}
+
+let L = [], CMP = [], sort = { key: 'gap', dir: -1 };
+
+function portalStats() {
+  return PORTALS.map((portal) => {
+    const all = L.filter((r) => r.portal === portal), live = all.filter((r) => r.status === 'Live');
+    const priced = live.filter((r) => num(r.live_price) > 0), both = priced.filter((r) => num(r.live_mrp) > 0);
+    const sp = both.reduce((s, r) => s + num(r.live_price), 0), mrp = both.reduce((s, r) => s + num(r.live_mrp), 0);
+    return { portal, listings: all.length, live: live.length, share: all.length ? live.length / all.length : 0,
+      avg: priced.length ? Math.round(priced.reduce((s, r) => s + num(r.live_price), 0) / priced.length) : null, disc: mrp ? 1 - sp / mrp : null };
+  });
+}
+
+function buildCompare() {
+  const m = new Map();
+  for (const r of L) {
+    const p = num(r.live_price);
+    if (r.status !== 'Live' || !(p > 0)) continue;
+    const o = m.get(r.main_sku) || { main_sku: r.main_sku };
+    if (o[r.portal] == null || p < o[r.portal]) o[r.portal] = p;
+    m.set(r.main_sku, o);
+  }
+  return [...m.values()].map((o) => {
+    const vals = PORTALS.filter((k) => o[k] != null).map((k) => [k, o[k]]);
+    if (vals.length < 2) return { ...o, cheapest: '', gap: null };
+    const lo = vals.reduce((a, b) => (b[1] < a[1] ? b : a)), hi = Math.max(...vals.map((v) => v[1]));
+    return { ...o, cheapest: lo[0], gap: Math.round((hi / lo[1]) * 100) / 100 };
+  });
+}
+
+function drawPortals(stats) {
+  $('portal-rows').replaceChildren(...stats.map((s) => {
+    const tr = el('tr');
+    tr.append(el('td', s.portal, 'sku'), el('td', fmt.format(s.listings), 'num'), el('td', fmt.format(s.live), 'num'), el('td', pct(s.share), 'num'),
+      el('td', s.avg == null ? '' : fmt.format(s.avg), 'num'), el('td', s.disc == null ? '' : pct(s.disc), 'num'));
+    return tr;
+  }));
+  const max = Math.max(...stats.map((s) => s.listings), 1);
+  $('bars').replaceChildren(...stats.map((s) => {
+    const row = el('div', null, 'bar'), track = el('div', null, 'track'), fill = el('div', null, 'fill');
+    track.style.width = (s.listings / max * 100) + '%'; fill.style.width = (s.share * 100) + '%';
+    track.title = s.portal + ': ' + fmt.format(s.live) + ' live, ' + fmt.format(s.listings - s.live) + ' not live';
+    track.append(fill); row.append(el('span', s.portal), el('div', null), el('span', pct(s.share), 'count'));
+    row.children[1].append(track);
+    return row;
+  }));
+}
+
+function drawCompare() {
+  const q = $('cmp-q').value.trim().toLowerCase(), only2 = $('cmp-gap').checked;
+  const rows = CMP.filter((r) => (!q || r.main_sku.toLowerCase().includes(q)) && (!only2 || (r.gap != null && r.gap >= 2)))
+    .sort((a, b) => { const va = a[sort.key], vb = b[sort.key]; if (va == null || va === '') return 1; if (vb == null || vb === '') return -1;
+      return (typeof va === 'number' ? va - vb : String(va).localeCompare(String(vb))) * sort.dir; });
+  $('cmp-count').textContent = fmt.format(rows.length) + ' SKUs shown';
+  $('cmp-rows').replaceChildren(...rows.slice(0, 1500).map((r) => {
+    const tr = el('tr'); tr.append(el('td', r.main_sku, 'sku'));
+    const vals = PORTALS.map((k) => r[k]).filter((v) => v != null);
+    const lo = vals.length > 1 ? Math.min(...vals) : null, hi = vals.length > 1 ? Math.max(...vals) : null;
+    for (const k of PORTALS) { const v = r[k]; tr.append(el('td', v == null ? '' : fmt.format(v), 'num' + (v != null && v === lo ? ' low' : v != null && v === hi && hi !== lo ? ' high' : ''))); }
+    tr.append(el('td', r.cheapest), el('td', r.gap == null ? '' : r.gap.toFixed(2) + 'x', 'num'));
+    return tr;
+  }));
+}
+
+function drawList() {
+  const q = $('list-q').value.trim().toLowerCase(), p = $('list-portal').value, s = $('list-status').value;
+  const rows = L.filter((r) => (!p || r.portal === p) && (!s || (s === 'live' ? r.status === 'Live' : r.status !== 'Live')) &&
+    (!q || r.main_sku.toLowerCase().includes(q) || r.seller_sku.toLowerCase().includes(q) || r.code.toLowerCase().includes(q)));
+  $('list-count').textContent = fmt.format(rows.length) + ' listings match';
+  $('list-rows').replaceChildren(...rows.slice(0, 500).map((r) => {
+    const tr = el('tr');
+    const pill = el('span', r.status, 'pill ' + (r.status === 'Live' ? 'live' : /OOS|hidden/.test(r.status) ? 'warn' : 'off'));
+    const st = el('td'); st.append(pill);
+    const lk = el('td');
+    if (/^https:\/\//.test(r.url)) { const a = el('a', 'Open'); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; lk.append(a); }
+    tr.append(el('td', r.main_sku, 'sku'), el('td', r.portal), el('td', r.seller_sku), el('td', r.code, 'code'), st,
+      el('td', num(r.live_mrp) == null ? '' : fmt.format(num(r.live_mrp)), 'num'), el('td', num(r.live_price) == null ? '' : fmt.format(num(r.live_price)), 'num'), lk);
+    return tr;
+  }));
+}
+
+(async () => {
+  try {
+    const [listings, sync] = await Promise.all([load('listings.csv'), load('sync_log.csv')]);
+    L = listings; CMP = buildCompare();
+    const stats = portalStats(), live = L.filter((r) => r.status === 'Live').length;
+    const cheap = {}; for (const r of CMP) if (r.cheapest) cheap[r.cheapest] = (cheap[r.cheapest] || 0) + 1;
+    const top = Object.entries(cheap).sort((a, b) => b[1] - a[1])[0];
+    const take = $('take'); take.replaceChildren();
+    take.append(el('b', fmt.format(live)), ' of ', el('b', fmt.format(L.length)), ' listings are live on ' + PORTALS.join(', ').replace(', Shopify', ' and the Shopify website') + '.');
+    if (top) take.append(' Among SKUs live on two or more portals, the same SKU is cheapest on ', el('b', top[0]), ' most often (' + fmt.format(top[1]) + ' SKUs).');
+    const times = sync.map((r) => r.synced_at).filter(Boolean);
+    $('meta').textContent = 'Latest sync: ' + (times.sort((a, b) => new Date(b) - new Date(a))[0] || '—') + '. Prices are read from each portal and refreshed daily.';
+    drawPortals(stats);
+    for (const p of PORTALS) $('list-portal').append(new Option(p, p));
+    drawCompare(); drawList();
+    $('sync-rows').replaceChildren(...sync.map((r) => { const tr = el('tr'); tr.append(el('td', r.portal, 'sku'), el('td', r.synced_at), el('td', num(r.rows) == null ? '' : fmt.format(num(r.rows)), 'num'), el('td', r.source)); return tr; }));
+  } catch (e) {
+    $('take').textContent = 'Could not load the price data (' + e.message + '). Reload the page in a minute.';
+  }
+})();
+
+$('cmp-q').addEventListener('input', drawCompare);
+$('cmp-gap').addEventListener('change', drawCompare);
+document.querySelectorAll('#cmp th[data-sort]').forEach((th) => th.addEventListener('click', () => {
+  const key = th.dataset.sort;
+  sort = { key, dir: sort.key === key ? -sort.dir : (key === 'main_sku' || key === 'cheapest' ? 1 : -1) };
+  document.querySelectorAll('#cmp th[data-sort]').forEach((h) => h.setAttribute('aria-sort', h.dataset.sort === key ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none'));
+  drawCompare();
+}));
+['list-q', 'list-portal', 'list-status'].forEach((id) => $(id).addEventListener(id === 'list-q' ? 'input' : 'change', drawList));
+</script>
+</body>
+</html>
